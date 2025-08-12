@@ -1,6 +1,8 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Stancl\Tenancy\Middleware\InitializeTenancyByDomain;
+use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
 
 /*
 
@@ -90,3 +92,15 @@ If you expect to grow and have many central domains (or they might change often)
 //     Route::get('/', fn() => 'Welcome to the Localhost Central Page!');
 //     Route::get('/info', fn() => phpinfo());
 // });
+
+// Tenant domains
+Route::middleware([
+    'web',
+    InitializeTenancyByDomain::class,
+    PreventAccessFromCentralDomains::class,
+])->group(function () {
+    Route::get('/', function () {
+        dd(\App\Models\User::all());
+        return 'This is your multi-tenant application. The id of the current tenant is ' . tenant('id');
+    });
+});
